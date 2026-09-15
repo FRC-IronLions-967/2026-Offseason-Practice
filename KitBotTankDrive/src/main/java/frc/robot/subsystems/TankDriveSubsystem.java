@@ -8,8 +8,7 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkMaxConfig.Presets;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -25,15 +24,15 @@ public class TankDriveSubsystem extends SubsystemBase {
 
   /** Creates a new TankDriveSubsystem. */
   public TankDriveSubsystem() {
-    left0 = new SparkMax(1, MotorType.kBrushless);
-    left1 = new SparkMax(2, MotorType.kBrushless);
-    right0 = new SparkMax(3, MotorType.kBrushless);
-    right1 = new SparkMax(4, MotorType.kBrushless);
+    left0 = new SparkMax(1, MotorType.kBrushed);
+    left1 = new SparkMax(2, MotorType.kBrushed);
+    right0 = new SparkMax(3, MotorType.kBrushed);
+    right1 = new SparkMax(4, MotorType.kBrushed);
 
-    SparkBaseConfig left0Config = Presets.REV_NEO;
-    SparkBaseConfig left1Config = Presets.REV_NEO;
-    SparkBaseConfig right0Config = Presets.REV_NEO;
-    SparkBaseConfig right1Config = Presets.REV_NEO;
+    SparkMaxConfig left0Config = new SparkMaxConfig();
+    SparkMaxConfig left1Config = new SparkMaxConfig();
+    SparkMaxConfig right0Config = new SparkMaxConfig();
+    SparkMaxConfig right1Config = new SparkMaxConfig();
 
     left0Config.inverted(false);
     left1Config.inverted(false);
