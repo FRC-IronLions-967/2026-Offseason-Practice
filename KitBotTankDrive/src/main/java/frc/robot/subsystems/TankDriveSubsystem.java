@@ -50,7 +50,7 @@ public class TankDriveSubsystem extends SubsystemBase {
 
   public void tankDrive(double leftStick, double rightStick) {
     leftPower = leftStick;
-    // TODO - assign power to right side
+    rightPower = rightStick;
   }
 
   @Override
@@ -58,6 +58,6 @@ public class TankDriveSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
 
     left0.set(leftPower);
-    // TODO - set right side of drive
+    right0.set(rightPower);
   }
 }
