@@ -32,7 +32,7 @@ public class TankDriveCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // TODO - use our method from the subsystem
+    tankDriveSubsystem.tankDrive(driverController.getLeftY(), driverController.getRightY());
   }
 
   // Called once the command ends or is interrupted.
