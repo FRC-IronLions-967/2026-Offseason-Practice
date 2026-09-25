@@ -11,6 +11,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class TankDriveSubsystem extends SubsystemBase {
 
@@ -49,10 +50,27 @@ public class TankDriveSubsystem extends SubsystemBase {
   }
 
   public void tankDrive(double leftStick, double rightStick) {
-    leftPower = leftStick;
-    rightPower = rightStick;
+     if(leftStick< Constants.kDeadBand && leftStick > -Constants.kDeadBand) {
+        leftStick = 0; 
+
+    }
+    if(rightStick< Constants.kDeadBand && rightStick> -Constants.kDeadBand){ 
+      rightStick=0;
+    }
+
+
+    leftPower = leftStick *leftStick;
+    rightPower = rightStick *rightStick;
+  
+    if(leftStick < 0){
+      leftPower=-leftPower;
+    }
+    if(rightStick < 0){
+      rightPower = -rightPower;
+    }
   }
 
+  
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
