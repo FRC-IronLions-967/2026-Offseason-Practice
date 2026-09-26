@@ -5,7 +5,9 @@
 package frc.robot;
 
 import frc.robot.Constants;
+import frc.robot.commands.ArcadeDriveCommand;
 import frc.robot.commands.TankDriveCommand;
+import frc.robot.subsystems.ArcadeDriveSubsystem;
 import frc.robot.subsystems.TankDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -19,7 +21,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final TankDriveSubsystem tankDriveSubsystem = new TankDriveSubsystem();
+  // private final TankDriveSubsystem tankDriveSubsystem = new TankDriveSubsystem();
+  private final ArcadeDriveSubsystem arcadeDriveSubsystem = new ArcadeDriveSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driverController = new CommandXboxController(Constants.kDriverControllerPort);
@@ -40,7 +43,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    tankDriveSubsystem.setDefaultCommand(new TankDriveCommand(tankDriveSubsystem, driverController));
+    // tankDriveSubsystem.setDefaultCommand(new TankDriveCommand(tankDriveSubsystem, driverController));
+    arcadeDriveSubsystem.setDefaultCommand(new ArcadeDriveCommand(arcadeDriveSubsystem, driverController));
   }
 
   /**
