@@ -57,8 +57,8 @@ public class ArcadeDriveSubsystem extends SubsystemBase {
       turningStick = 0;
     }
 
-    leftPower = throttleStick + turningStick;
-    rightPower = throttleStick - turningStick;
+    leftPower = throttleStick - turningStick;
+    rightPower = throttleStick + turningStick;
 
     if (leftPower > 1.0) {
       leftPower = 1.0;
