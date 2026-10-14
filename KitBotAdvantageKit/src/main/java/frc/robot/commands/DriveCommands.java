@@ -7,11 +7,7 @@
 
 package frc.robot.commands;
 
-import static frc.robot.subsystems.drive.DriveConstants.maxSpeedMetersPerSec;
-
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
@@ -31,7 +27,7 @@ public class DriveCommands {
    * Standard joystick drive, where X is the forward-backward axis (positive = forward) and Z is the
    * left-right axis (positive = counter-clockwise).
    */
-  public static Command arcadeDrive(
+  /*public static Command arcadeDrive(
       Drive drive, DoubleSupplier xSupplier, DoubleSupplier zSupplier) {
     return Commands.run(
         () -> {
@@ -45,6 +41,15 @@ public class DriveCommands {
           // Apply output
           drive.runClosedLoop(
               speeds.left * maxSpeedMetersPerSec, speeds.right * maxSpeedMetersPerSec);
+        },
+        drive);
+  }*/
+
+  public static Command arcadeDrive(
+      Drive drive, DoubleSupplier xSupplier, DoubleSupplier zSupplier) {
+    return Commands.run(
+        () -> {
+          drive.arcadeDrive(xSupplier.getAsDouble(), zSupplier.getAsDouble());
         },
         drive);
   }

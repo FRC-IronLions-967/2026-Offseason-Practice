@@ -122,4 +122,10 @@ public class DriveIOSpark implements DriveIO {
     rightController.setSetpoint(
         rightRadPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0, rightFFVolts);
   }
+
+  @Override
+  public void set(double rightInput, double leftInput) {
+    leftLeader.set(leftInput);
+    rightLeader.set(rightInput);
+  }
 }

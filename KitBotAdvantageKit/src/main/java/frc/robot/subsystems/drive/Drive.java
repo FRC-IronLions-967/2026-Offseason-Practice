@@ -7,8 +7,12 @@
 
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
-import static frc.robot.subsystems.drive.DriveConstants.*;
+import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.subsystems.drive.DriveConstants.realKs;
+import static frc.robot.subsystems.drive.DriveConstants.realKv;
+import static frc.robot.subsystems.drive.DriveConstants.simKs;
+import static frc.robot.subsystems.drive.DriveConstants.simKv;
+import static frc.robot.subsystems.drive.DriveConstants.wheelRadiusMeters;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -64,6 +68,13 @@ public class Drive extends SubsystemBase {
   /** Runs the drive in open loop. */
   public void runOpenLoop(double leftVolts, double rightVolts) {
     io.setVoltage(leftVolts, rightVolts);
+  }
+
+  /*Runs the arcade drive. */
+  public void arcadeDrive(double throttleStick, double turnStick) {
+    double leftPower = throttleStick - turnStick;
+    double rightPower = throttleStick + turnStick;
+    io.set(rightPower, leftPower);
   }
 
   /** Stops the drive. */
