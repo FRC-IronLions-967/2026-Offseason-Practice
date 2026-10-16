@@ -86,7 +86,7 @@ public class RobotContainer {
     // Default command, normal arcade drive
     drive.setDefaultCommand(
         DriveCommands.arcadeDrive(
-            drive, () -> controller.getLeftY(), () -> controller.getRightX()));
+            drive, () -> -controller.getLeftY(), () -> -controller.getRightX()));
   }
 
   /**
