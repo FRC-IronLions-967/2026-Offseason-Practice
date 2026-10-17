@@ -18,6 +18,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveIOSpark;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIONavX;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -41,17 +43,17 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        drive = new Drive(new DriveIOSpark());
+        drive = new Drive(new DriveIOSpark(), new GyroIONavX());
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        drive = new Drive(new DriveIOSim());
+        drive = new Drive(new DriveIOSim(), new GyroIO() {});
         break;
 
       default:
         // Replayed robot, disable IO implementations
-        drive = new Drive(new DriveIO() {});
+        drive = new Drive(new DriveIO() {}, new GyroIO() {});
         break;
     }
 

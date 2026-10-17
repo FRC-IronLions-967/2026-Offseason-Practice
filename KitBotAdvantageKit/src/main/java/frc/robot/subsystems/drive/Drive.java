@@ -9,18 +9,24 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.drive.DriveConstants.maxSpeedMetersPerSec;
+import static frc.robot.subsystems.drive.DriveConstants.ppConfig;
 import static frc.robot.subsystems.drive.DriveConstants.realKs;
 import static frc.robot.subsystems.drive.DriveConstants.realKv;
 import static frc.robot.subsystems.drive.DriveConstants.simKs;
 import static frc.robot.subsystems.drive.DriveConstants.simKv;
+import static frc.robot.subsystems.drive.DriveConstants.trackWidth;
 import static frc.robot.subsystems.drive.DriveConstants.wheelRadiusMeters;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPLTVController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -29,7 +35,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.util.LocalADStarAK;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -37,14 +42,23 @@ import org.littletonrobotics.junction.Logger;
 public class Drive extends SubsystemBase {
   private final DriveIO io;
   private final DriveIOInputsAutoLogged inputs = new DriveIOInputsAutoLogged();
+  private final GyroIO gyroIO;
+  private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
+
+  private final DifferentialDriveKinematics kinematics =
+      new DifferentialDriveKinematics(trackWidth);
   private final double kS = Constants.currentMode == Mode.SIM ? simKs : realKs;
   private final double kV = Constants.currentMode == Mode.SIM ? simKv : realKv;
+  private final DifferentialDrivePoseEstimator poseEstimator =
+      new DifferentialDrivePoseEstimator(kinematics, Rotation2d.kZero, 0.0, 0.0, Pose2d.kZero);
   private final SysIdRoutine sysId;
+  private Rotation2d rawGyroRotation = Rotation2d.kZero;
   private double lastLeftPositionMeters = 0.0;
   private double lastRightPositionMeters = 0.0;
 
-  public Drive(DriveIO io) {
+  public Drive(DriveIO io, GyroIO gyroIO) {
     this.io = io;
+    this.gyroIO = gyroIO;
     // Configure AutoBuilder for PathPlanner
     AutoBuilder.configure(
         this::getPose,
@@ -83,7 +97,33 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
+    gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive", inputs);
+    Logger.processInputs("Drive/Gyro", gyroInputs);
+
+    // Update gyro angle
+    if (gyroInputs.connected) {
+      // Use the real gyro angle
+      rawGyroRotation = gyroInputs.yawPosition;
+    } else {
+      // Use the angle delta from the kinematics and module deltas
+      Twist2d twist =
+          kinematics.toTwist2d(
+              getLeftPositionMeters() - lastLeftPositionMeters,
+              getRightPositionMeters() - lastRightPositionMeters);
+      rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
+      lastLeftPositionMeters = getLeftPositionMeters();
+      lastRightPositionMeters = getRightPositionMeters();
+    }
+
+    // Update odometry
+    poseEstimator.update(rawGyroRotation, getLeftPositionMeters(), getRightPositionMeters());
+  }
+
+  /** Runs the drive at the desired velocity. */
+  public void runClosedLoop(ChassisSpeeds speeds) {
+    var wheelSpeeds = kinematics.toWheelSpeeds(speeds);
+    runClosedLoop(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
   }
 
   /** Runs the drive at the desired left and right velocities. */
@@ -125,6 +165,22 @@ public class Drive extends SubsystemBase {
     return sysId.dynamic(direction);
   }
 
+  /** Returns the current odometry pose. */
+  @AutoLogOutput(key = "Odometry/Robot")
+  public Pose2d getPose() {
+    return poseEstimator.getEstimatedPosition();
+  }
+
+  /** Returns the current odometry rotation. */
+  public Rotation2d getRotation() {
+    return getPose().getRotation();
+  }
+
+  /** Resets the current odometry pose. */
+  public void setPose(Pose2d pose) {
+    poseEstimator.resetPosition(
+        rawGyroRotation, getLeftPositionMeters(), getRightPositionMeters(), pose);
+  }
   /** Returns the position of the left wheels in meters. */
   @AutoLogOutput
   public double getLeftPositionMeters() {

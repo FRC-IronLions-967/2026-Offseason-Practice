@@ -7,10 +7,13 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
@@ -27,7 +30,7 @@ public class DriveCommands {
    * Standard joystick drive, where X is the forward-backward axis (positive = forward) and Z is the
    * left-right axis (positive = counter-clockwise).
    */
-  /*public static Command arcadeDrive(
+  public static Command arcadeDrive(
       Drive drive, DoubleSupplier xSupplier, DoubleSupplier zSupplier) {
     return Commands.run(
         () -> {
@@ -40,19 +43,20 @@ public class DriveCommands {
 
           // Apply output
           drive.runClosedLoop(
-              speeds.left * maxSpeedMetersPerSec, speeds.right * maxSpeedMetersPerSec);
-        },
-        drive);
-  }*/
-
-  public static Command arcadeDrive(
-      Drive drive, DoubleSupplier xSupplier, DoubleSupplier zSupplier) {
-    return Commands.run(
-        () -> {
-          drive.arcadeDrive(xSupplier.getAsDouble(), zSupplier.getAsDouble());
+              speeds.left * DriveConstants.maxSpeedMetersPerSec,
+              speeds.right * DriveConstants.maxSpeedMetersPerSec);
         },
         drive);
   }
+
+  // public static Command arcadeDrive(
+  //     Drive drive, DoubleSupplier xSupplier, DoubleSupplier zSupplier) {
+  //   return Commands.run(
+  //       () -> {
+  //         drive.arcadeDrive(xSupplier.getAsDouble(), zSupplier.getAsDouble());
+  //       },
+  //       drive);
+  // }
 
   /** Measures the velocity feedforward constants for the drive. */
   public static Command feedforwardCharacterization(Drive drive) {
