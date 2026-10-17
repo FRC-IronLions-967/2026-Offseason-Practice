@@ -25,8 +25,9 @@ public class DriveConstants {
 
   // Motor configuration
   public static final int currentLimit = 60;
-  public static final double wheelRadiusMeters = Units.inchesToMeters(3.0);
-  public static final double motorReduction = 10.71;
+  // Measured Radii Left: 3.08 in, Right: 3.10 in. Tim Scholl, Syl Islam, Levi Richards. 10/17/26
+  public static final double wheelRadiusMeters = Units.inchesToMeters(3.1);
+  public static final double motorReduction = 8.45;
   public static final boolean leftInverted = false;
   public static final boolean rightInverted = true;
   public static final DCMotor gearbox = DCMotor.getCIM(2);
@@ -34,8 +35,8 @@ public class DriveConstants {
   // Velocity PID configuration
   public static final double realKp = 0.0;
   public static final double realKd = 0.0;
-  public static final double realKs = 0.0;
-  public static final double realKv = 0.1;
+  public static final double realKs = 0.14160;
+  public static final double realKv = 0.22789;
 
   public static final double simKp = 0.05;
   public static final double simKd = 0.0;
