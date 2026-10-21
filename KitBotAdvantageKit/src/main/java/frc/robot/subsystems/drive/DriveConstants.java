@@ -13,7 +13,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 public class DriveConstants {
-  public static final double maxSpeedMetersPerSec = 4.23;
+  public static final double maxSpeedMetersPerSec = 3.87;
   public static final double trackWidth = Units.inchesToMeters(21.75);
 
   // Device CAN IDs
@@ -33,8 +33,10 @@ public class DriveConstants {
   public static final DCMotor gearbox = DCMotor.getCIM(2);
 
   // Velocity PID configuration
-  public static final double realKp = 0.0;
-  public static final double realKd = 0.0;
+
+  //TODO: Adjust Kp and Kd
+  public static final double realKp = 0.00;
+  public static final double realKd = 0.00;
   public static final double realKs = 0.14160;
   public static final double realKv = 0.22789;
 

@@ -132,6 +132,8 @@ public class Drive extends SubsystemBase {
     double rightRadPerSec = rightMetersPerSec / wheelRadiusMeters;
     Logger.recordOutput("Drive/LeftSetpointRadPerSec", leftRadPerSec);
     Logger.recordOutput("Drive/RightSetpointRadPerSec", rightRadPerSec);
+    Logger.recordOutput("Drive/LeftSetpointMetersPerSec", leftMetersPerSec);
+    Logger.recordOutput("Drive/RightSetpointMetersPerSec", rightMetersPerSec);
 
     double leftFFVolts = kS * Math.signum(leftRadPerSec) + kV * leftRadPerSec;
     double rightFFVolts = kS * Math.signum(rightRadPerSec) + kV * rightRadPerSec;
