@@ -44,9 +44,12 @@ public class DriveIOSpark implements DriveIO {
     config.closedLoop.pid(realKp, 0.0, realKd);
     config
         .encoder
-        .positionConversionFactor(2 * Math.PI / motorReduction) // Rotor Rotations -> Wheel Radians
+        .positionConversionFactor(
+            2 * Math.PI * wheelRadiusMeters / motorReduction) // Rotor Rotations -> Meters
         .velocityConversionFactor(
-            (2 * Math.PI) / 60.0 / motorReduction) // Rotor RPM -> Wheel Rad/Sec
+            (2 * Math.PI * wheelRadiusMeters)
+                / 60.0
+                / motorReduction) // Rotor RPM -> Meters per Second
         .uvwMeasurementPeriod(10)
         .uvwAverageDepth(2);
 
@@ -85,8 +88,8 @@ public class DriveIOSpark implements DriveIO {
 
   @Override
   public void updateInputs(DriveIOInputs inputs) {
-    ifOk(leftLeader, leftEncoder::getPosition, (value) -> inputs.leftPositionRad = value);
-    ifOk(leftLeader, leftEncoder::getVelocity, (value) -> inputs.leftVelocityRadPerSec = value);
+    ifOk(leftLeader, leftEncoder::getPosition, (value) -> inputs.leftPositionMeters = value);
+    ifOk(leftLeader, leftEncoder::getVelocity, (value) -> inputs.leftVelocityMetersPerSec = value);
     ifOk(
         leftLeader,
         new DoubleSupplier[] {leftLeader::getAppliedOutput, leftLeader::getBusVoltage},
@@ -96,8 +99,11 @@ public class DriveIOSpark implements DriveIO {
         new DoubleSupplier[] {leftLeader::getOutputCurrent, leftFollower::getOutputCurrent},
         (values) -> inputs.leftCurrentAmps = values);
 
-    ifOk(rightLeader, rightEncoder::getPosition, (value) -> inputs.rightPositionRad = value);
-    ifOk(rightLeader, rightEncoder::getVelocity, (value) -> inputs.rightVelocityRadPerSec = value);
+    ifOk(
+        rightLeader,
+        rightEncoder::getVelocity,
+        (value) -> inputs.rightVelocityMetersPerSec = value);
+    ifOk(rightLeader, rightEncoder::getPosition, (value) -> inputs.rightPositionMeters = value);
     ifOk(
         rightLeader,
         new DoubleSupplier[] {rightLeader::getAppliedOutput, rightLeader::getBusVoltage},
@@ -116,11 +122,11 @@ public class DriveIOSpark implements DriveIO {
 
   @Override
   public void setVelocity(
-      double leftRadPerSec, double rightRadPerSec, double leftFFVolts, double rightFFVolts) {
+      double leftMetersPerSec, double rightMetersPerSec, double leftFFVolts, double rightFFVolts) {
     leftController.setSetpoint(
-        leftRadPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0, leftFFVolts);
+        leftMetersPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0, leftFFVolts);
     rightController.setSetpoint(
-        rightRadPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0, rightFFVolts);
+        rightMetersPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0, rightFFVolts);
   }
 
   @Override

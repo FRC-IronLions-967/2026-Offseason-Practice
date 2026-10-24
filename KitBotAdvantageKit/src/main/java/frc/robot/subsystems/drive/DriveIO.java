@@ -12,13 +12,13 @@ import org.littletonrobotics.junction.AutoLog;
 public interface DriveIO {
   @AutoLog
   public static class DriveIOInputs {
-    public double leftPositionRad = 0.0;
-    public double leftVelocityRadPerSec = 0.0;
+    public double leftPositionMeters = 0.0;
+    public double leftVelocityMetersPerSec = 0.0;
     public double leftAppliedVolts = 0.0;
     public double[] leftCurrentAmps = new double[] {};
 
-    public double rightPositionRad = 0.0;
-    public double rightVelocityRadPerSec = 0.0;
+    public double rightPositionMeters = 0.0;
+    public double rightVelocityMetersPerSec = 0.0;
     public double rightAppliedVolts = 0.0;
     public double[] rightCurrentAmps = new double[] {};
   }

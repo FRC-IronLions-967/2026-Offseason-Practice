@@ -45,13 +45,13 @@ public class DriveIOSim implements DriveIO {
         MathUtil.clamp(rightAppliedVolts, -12.0, 12.0));
     sim.update(0.02);
 
-    inputs.leftPositionRad = sim.getLeftPositionMeters() / wheelRadiusMeters;
-    inputs.leftVelocityRadPerSec = sim.getLeftVelocityMetersPerSecond() / wheelRadiusMeters;
+    inputs.leftPositionMeters = sim.getLeftPositionMeters();
+    inputs.leftVelocityMetersPerSec = sim.getLeftVelocityMetersPerSecond();
     inputs.leftAppliedVolts = leftAppliedVolts;
     inputs.leftCurrentAmps = new double[] {sim.getLeftCurrentDrawAmps()};
 
-    inputs.rightPositionRad = sim.getRightPositionMeters() / wheelRadiusMeters;
-    inputs.rightVelocityRadPerSec = sim.getRightVelocityMetersPerSecond() / wheelRadiusMeters;
+    inputs.rightPositionMeters = sim.getRightPositionMeters();
+    inputs.rightVelocityMetersPerSec = sim.getRightVelocityMetersPerSecond();
     inputs.rightAppliedVolts = rightAppliedVolts;
     inputs.rightCurrentAmps = new double[] {sim.getRightCurrentDrawAmps()};
   }

@@ -34,11 +34,11 @@ public class DriveConstants {
 
   // Velocity PID configuration
 
-  //TODO: Adjust Kp and Kd
-  public static final double realKp = 0.00;
-  public static final double realKd = 0.00;
-  public static final double realKs = 0.14160;
-  public static final double realKv = 0.22789;
+  // Finalized Kp and Kd. 10/24/26, Tim Scholl, Levi Richards, Syl Islam
+  public static final double realKp = 0.155;
+  public static final double realKd = 0.0;
+  public static final double realKs = 0.12882;
+  public static final double realKv = 2.27217;
 
   public static final double simKp = 0.05;
   public static final double simKd = 0.0;
@@ -46,9 +46,9 @@ public class DriveConstants {
   public static final double simKv = 0.227;
 
   // PathPlanner configuration
-  public static final double robotMassKg = 74.088;
+  public static final double robotMassKg = 20.35;
   public static final double robotMOI = 6.883;
-  public static final double wheelCOF = 1.2;
+  public static final double wheelCOF = 0.975;
   public static final RobotConfig ppConfig =
       new RobotConfig(
           robotMassKg,

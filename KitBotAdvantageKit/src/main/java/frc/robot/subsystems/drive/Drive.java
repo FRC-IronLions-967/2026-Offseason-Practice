@@ -15,7 +15,6 @@ import static frc.robot.subsystems.drive.DriveConstants.realKv;
 import static frc.robot.subsystems.drive.DriveConstants.simKs;
 import static frc.robot.subsystems.drive.DriveConstants.simKv;
 import static frc.robot.subsystems.drive.DriveConstants.trackWidth;
-import static frc.robot.subsystems.drive.DriveConstants.wheelRadiusMeters;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPLTVController;
@@ -128,16 +127,12 @@ public class Drive extends SubsystemBase {
 
   /** Runs the drive at the desired left and right velocities. */
   public void runClosedLoop(double leftMetersPerSec, double rightMetersPerSec) {
-    double leftRadPerSec = leftMetersPerSec / wheelRadiusMeters;
-    double rightRadPerSec = rightMetersPerSec / wheelRadiusMeters;
-    Logger.recordOutput("Drive/LeftSetpointRadPerSec", leftRadPerSec);
-    Logger.recordOutput("Drive/RightSetpointRadPerSec", rightRadPerSec);
     Logger.recordOutput("Drive/LeftSetpointMetersPerSec", leftMetersPerSec);
     Logger.recordOutput("Drive/RightSetpointMetersPerSec", rightMetersPerSec);
 
-    double leftFFVolts = kS * Math.signum(leftRadPerSec) + kV * leftRadPerSec;
-    double rightFFVolts = kS * Math.signum(rightRadPerSec) + kV * rightRadPerSec;
-    io.setVelocity(leftRadPerSec, rightRadPerSec, leftFFVolts, rightFFVolts);
+    double leftFFVolts = kS * Math.signum(leftMetersPerSec) + kV * leftMetersPerSec;
+    double rightFFVolts = kS * Math.signum(rightMetersPerSec) + kV * rightMetersPerSec;
+    io.setVelocity(leftMetersPerSec, rightMetersPerSec, leftFFVolts, rightFFVolts);
   }
 
   /** Runs the drive in open loop. */
@@ -186,29 +181,29 @@ public class Drive extends SubsystemBase {
   /** Returns the position of the left wheels in meters. */
   @AutoLogOutput
   public double getLeftPositionMeters() {
-    return inputs.leftPositionRad * wheelRadiusMeters;
+    return inputs.leftPositionMeters;
   }
 
   /** Returns the position of the right wheels in meters. */
   @AutoLogOutput
   public double getRightPositionMeters() {
-    return inputs.rightPositionRad * wheelRadiusMeters;
+    return inputs.rightPositionMeters;
   }
 
   /** Returns the velocity of the left wheels in meters/second. */
   @AutoLogOutput
   public double getLeftVelocityMetersPerSec() {
-    return inputs.leftVelocityRadPerSec * wheelRadiusMeters;
+    return inputs.leftVelocityMetersPerSec;
   }
 
   /** Returns the velocity of the right wheels in meters/second. */
   @AutoLogOutput
   public double getRightVelocityMetersPerSec() {
-    return inputs.rightVelocityRadPerSec * wheelRadiusMeters;
+    return inputs.rightVelocityMetersPerSec;
   }
 
   /** Returns the average velocity in radians/second. */
   public double getCharacterizationVelocity() {
-    return (inputs.leftVelocityRadPerSec + inputs.rightVelocityRadPerSec) / 2.0;
+    return (inputs.leftVelocityMetersPerSec + inputs.rightVelocityMetersPerSec) / 2.0;
   }
 }
