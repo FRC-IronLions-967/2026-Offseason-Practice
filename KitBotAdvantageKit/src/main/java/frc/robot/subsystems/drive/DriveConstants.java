@@ -40,10 +40,10 @@ public class DriveConstants {
   public static final double realKs = 0.12882;
   public static final double realKv = 2.27217;
 
-  public static final double simKp = 0.05;
+  public static final double simKp = 0.155;
   public static final double simKd = 0.0;
-  public static final double simKs = 0.0;
-  public static final double simKv = 0.227;
+  public static final double simKs = 0.12882;
+  public static final double simKv = 2.27217;
 
   // PathPlanner configuration
   public static final double robotMassKg = 20.35;
