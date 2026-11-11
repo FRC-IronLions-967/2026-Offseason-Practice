@@ -4,16 +4,12 @@
 
 package frc.robot.subsystems.vision;
 
-import java.security.Timestamp;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.littletonrobotics.junction.Logger;
-import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonPipelineResult;
-
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import java.util.LinkedList;
+import java.util.List;
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 /** Add your docs here. */
 public class AprilTagIOPhotonVision implements AprilTagIO {
@@ -21,7 +17,7 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
   protected PhotonCamera camera;
   protected Transform3d robotToCamera = null;
 
-  //variables for periodic
+  // variables for periodic
   protected List<PoseObservation> poseObservations = new LinkedList<>();
   protected Transform3d fieldToCamera;
   protected Transform3d fieldToRobot;
@@ -32,14 +28,14 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
   public AprilTagIOPhotonVision(String cameraName, Transform3d robotToCamera) {
     camera = new PhotonCamera(cameraName);
     this.robotToCamera = robotToCamera;
-  } 
+  }
 
   @Override
   public void updateInputs(AprilTagIOInputs inputs) {
     inputs.isTrying = true;
     inputs.isConnected = camera.isConnected();
     if (inputs.isConnected) {
-      //Read unread results
+      // Read unread results
       List<PhotonPipelineResult> results = camera.getAllUnreadResults();
 
       poseObservations.clear();
@@ -50,18 +46,22 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
           fieldToCamera = multitagResult.estimatedPose.best;
           fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
           robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
-          poseObservations.add(new PoseObservation(multitagResult.estimatedPose.ambiguity, robotPose, result.getTimestampSeconds()));
+          poseObservations.add(
+              new PoseObservation(
+                  multitagResult.estimatedPose.ambiguity, robotPose, result.getTimestampSeconds()));
         } else if (result.hasTargets()) {
-          //Single Target
+          // Single Target
           var target = result.getBestTarget();
           var tagPose = VisionConstants.kTagLayout.getTagPose(target.fiducialId);
           if (tagPose.isPresent()) {
-            fieldToTarget = new Transform3d(tagPose.get().getTranslation(), tagPose.get().getRotation());
+            fieldToTarget =
+                new Transform3d(tagPose.get().getTranslation(), tagPose.get().getRotation());
             cameraToTarget = target.bestCameraToTarget;
             fieldToCamera = fieldToTarget.plus(cameraToTarget.inverse());
             fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
             robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
-            poseObservations.add(new PoseObservation(target.poseAmbiguity, robotPose, result.getTimestampSeconds()));
+            poseObservations.add(
+                new PoseObservation(target.poseAmbiguity, robotPose, result.getTimestampSeconds()));
           }
         }
       }

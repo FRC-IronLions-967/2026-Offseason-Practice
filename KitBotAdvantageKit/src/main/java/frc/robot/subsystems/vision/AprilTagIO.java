@@ -14,7 +14,7 @@ public interface AprilTagIO {
   public static class AprilTagIOInputs {
     public boolean isConnected = false;
     public boolean hasTarget = false;
-    //public TargetInfo[] targetInfo;
+    // public TargetInfo[] targetInfo;
     public PoseObservation[] poseObservations = new PoseObservation[0];
     public PoseTypes poseType;
     public boolean isTrying = false;
@@ -26,10 +26,9 @@ public interface AprilTagIO {
   };
 
   /*public static record TargetInfo(
-      int tagID, double targetYaw, double targetPitch, double distanceToTarget) {}*/
+  int tagID, double targetYaw, double targetPitch, double distanceToTarget) {}*/
 
-  public static record PoseObservation(
-      double ambiguity, Pose3d pose, double timestamp) {}
+  public static record PoseObservation(double ambiguity, Pose3d pose, double timestamp) {}
 
   public static record VisionPoseObs(Pose2d poseObs, boolean poseObsGood, double timestamp) {}
 

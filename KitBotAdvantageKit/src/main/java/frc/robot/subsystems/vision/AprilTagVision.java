@@ -10,12 +10,11 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.vision.AprilTagIO.TargetInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -53,20 +52,6 @@ public class AprilTagVision extends SubsystemBase {
     acceptedTimestamps = new ArrayList<>();
     acceptedLinearW = new ArrayList<>();
     acceptedAngularW = new ArrayList<>();
-  }
-
-  /**
-   * @param cameraIndex what camera to look
-   * @param aprilTagID what april tag to look at
-   * @return the rot and norm of the specified april tag
-   */
-  public TargetInfo getTargetInfo(int cameraIndex, int aprilTagID) {
-    for (int i = 0; i < inputs[cameraIndex].targetInfo.length; i++) {
-      if (inputs[cameraIndex].targetInfo[i].tagID() == aprilTagID) {
-        return inputs[cameraIndex].targetInfo[i];
-      }
-    }
-    return null;
   }
 
   @Override
@@ -111,80 +96,91 @@ public class AprilTagVision extends SubsystemBase {
                 obs.pose().getZ(),
                 obs.pose().getRotation()));
         acceptedTimestamps.add(obs.timestamp());
-        /*
-         * If you have/are taken AP Stat this can make sense.
-         * The base line is in radians/meters and is how far of you think the pose is 68% of the time.
-         * Then we can modify it based on how far and how many tags we have.
-         * EG. We have a std dev baseline of 0.1m. Our x component of the standard deviation is 5.0. We have 2 tags(HUB) and they are 3m away. So then the standard deviation would be 0.15m
-         * So there would be a 68% chance that the actual pose would be between 4.85 and 5.15 and a 95% chance that the actual pose would be between 4.7 and 5.3
-         */
-        double stdFactor = obs.avgTagDistance() / obs.tagCount();
-        double linearStdDev = VisionConstants.camera1linearStdDevBaseline * stdFactor;
-        double angularStdDev = VisionConstants.camera1angularStdDevBaseline * stdFactor;
-
-        if (obs.tagCount() == 1) {
-          linearStdDev *= 2.0;
-          angularStdDev = 99999;
-        }
-
-        acceptedLinearW.add(1 / linearStdDev);
-        acceptedAngularW.add(1 / angularStdDev);
-
-        // consumer.accept(obs.pose().toPose2d(), obs.timestamp(), VecBuilder.fill(linearStdDev,
-        // linearStdDev, angularStdDev));
+        
       }
     }
     double sumX = 0;
     double sumY = 0;
-    double sumZ = 0;
+    /*double sumZ = 0;*/
 
-    double sumCosYaw = 0;
-    double sumSinYaw = 0;
+    double sumYaw = 0;
 
+    double avgTimestamp = 0;
+
+    // double sumCosYaw = 0;
+    // double sumSinYaw = 0;
+    /*
     double sumCosPitch = 0;
     double sumSinPitch = 0;
 
     double sumCosRoll = 0;
     double sumSinRoll = 0;
-
+    
     double weightedTimestampSum = 0;
     double totalLinearWeight = 0;
     double totalAngularWeight = 0;
+    */
 
     for (int i = 0; i < acceptedPoses.size(); i++) {
-
       Pose3d pose = acceptedPoses.get(i);
 
-      double linearW = acceptedLinearW.get(i);
-      double angularW = acceptedAngularW.get(i);
+      sumX += pose.getX();
+      sumY += pose.getY();
 
-      // Weighted position
-      sumX += pose.getX() * linearW;
-      sumY += pose.getY() * linearW;
-      sumZ += pose.getZ() * linearW;
-
-      // Weighted timestamp
-      weightedTimestampSum += acceptedTimestamps.get(i) * linearW;
-
-      totalLinearWeight += linearW;
-
-      // Rotation — use sin/cos averaging to avoid wrap issues
-      double yaw = pose.getRotation().getZ();
-      double pitch = pose.getRotation().getY();
-      double roll = pose.getRotation().getX();
-
-      sumCosYaw += Math.cos(yaw) * angularW;
-      sumSinYaw += Math.sin(yaw) * angularW;
-
-      sumCosPitch += Math.cos(pitch) * angularW;
-      sumSinPitch += Math.sin(pitch) * angularW;
-
-      sumCosRoll += Math.cos(roll) * angularW;
-      sumSinRoll += Math.sin(roll) * angularW;
-
-      totalAngularWeight += angularW;
+      sumYaw += pose.getRotation().getZ();
     }
 
+    double avgX = sumX / acceptedPoses.size();
+    double avgY = sumY / acceptedPoses.size();
+
+    double avgYaw = sumYaw / acceptedPoses.size();
+
+    //Calculate Standard Deviation
+    sumX = 0;
+    sumY = 0;
+
+    sumYaw = 0;
+
+    for (int i = 0; i < acceptedPoses.size(); i++) {
+      Pose3d pose = acceptedPoses.get(i);
+      sumX = pose.getX();
+      sumY = pose.getY();
+
+      sumYaw = pose.getRotation().getZ();
+
+      sumX += Math.pow(pose.getX() - avgX, 2);
+      sumY += Math.pow(pose.getY() - avgY, 2);
+
+      sumYaw += Math.pow(pose.getRotation().getZ() - avgYaw, 2);
+    }
+
+    // Dividing by n
+    sumX /= acceptedPoses.size();
+    sumY /= acceptedPoses.size();
+
+    sumYaw /= acceptedPoses.size();
+
+    // Standard deviation variables
+    double standardDevX = Math.sqrt(sumX);
+    double standardDevY = Math.sqrt(sumY);
+
+    double standardDevYaw = Math.sqrt(sumYaw);
+    
+    Pose2d combinedPose = new Pose2d(avgX, avgY, new Rotation2d(avgYaw)); // Check if in degrees or rad
+
+    // Timestamp average calculation
+    for (int i = 0; i < acceptedTimestamps.size(); i++){
+      avgTimestamp += acceptedTimestamps.get(i);
+    }
+
+    avgTimestamp /= acceptedTimestamps.size();
+
+    consumer.accept(
+          combinedPose,
+          avgTimestamp,
+          VecBuilder.fill(standardDevX, standardDevY, standardDevYaw));
+    
+    /* 
     if (totalLinearWeight > 0 && totalAngularWeight > 0) {
 
       double fusedX = sumX / totalLinearWeight;
@@ -207,11 +203,8 @@ public class AprilTagVision extends SubsystemBase {
       double fusedLinearStd = Math.sqrt(fusedLinearVar);
       double fusedAngularStd = Math.sqrt(fusedAngularVar);
 
-      consumer.accept(
-          combinedPose.toPose2d(),
-          fusedTimestamp,
-          VecBuilder.fill(fusedLinearStd, fusedLinearStd, fusedAngularStd));
-    }
+      
+    }*/
   }
 
   // Feeds into the drive poseEstimator
