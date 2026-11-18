@@ -20,6 +20,10 @@ import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveIOSpark;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
+import frc.robot.subsystems.vision.AprilTagIO;
+import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
+import frc.robot.subsystems.vision.AprilTagVision;
+import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -31,6 +35,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+
+  private final AprilTagVision aprilTagVision;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -44,16 +50,44 @@ public class RobotContainer {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         drive = new Drive(new DriveIOSpark(), new GyroIONavX());
+
+        aprilTagVision =
+            new AprilTagVision(
+                drive::addVisionMeasurement,
+                drive::getChassisSpeeds,
+                new AprilTagIOPhotonVision(
+                    VisionConstants.AprilTagCamera1Name, VisionConstants.AprilTagCamera1Transform),
+                new AprilTagIOPhotonVision(
+                    VisionConstants.AprilTagCamera2Name, VisionConstants.AprilTagCamera2Transform));
+
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         drive = new Drive(new DriveIOSim(), new GyroIO() {});
+
+        aprilTagVision =
+            new AprilTagVision(
+                drive::addVisionMeasurement,
+                drive::getChassisSpeeds,
+                new AprilTagIOPhotonVision(
+                    VisionConstants.AprilTagCamera1Name, VisionConstants.AprilTagCamera1Transform),
+                new AprilTagIOPhotonVision(
+                    VisionConstants.AprilTagCamera2Name, VisionConstants.AprilTagCamera2Transform));
+
         break;
 
       default:
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {}, new GyroIO() {});
+
+        aprilTagVision =
+            new AprilTagVision(
+                drive::addVisionMeasurement,
+                drive::getChassisSpeeds,
+                new AprilTagIO() {},
+                new AprilTagIO() {});
+
         break;
     }
 

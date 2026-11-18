@@ -65,4 +65,10 @@ public class VisionConstants {
 
   public static final double camera1OffsetX = 0.0;
   public static final double camera1OffsetY = -0.0;
+
+  public static final double measuredDistanceStdDev =
+      0.0112789891; // Calculated using std dev function in Google Sheets
+  public static final double measuredVisionErrorFactor = 0.1328368297278222;
+  public static final double estimatedAngleStdDev =
+      Math.toRadians(10); // This is a guess, replace later
 }

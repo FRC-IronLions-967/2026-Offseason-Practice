@@ -41,6 +41,10 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
       poseObservations.clear();
 
       for (PhotonPipelineResult result : results) {
+        if (!result.hasTargets()) continue;
+
+        double distance = result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
+
         if (result.multitagResult.isPresent()) {
           var multitagResult = result.getMultiTagResult().get();
           fieldToCamera = multitagResult.estimatedPose.best;
@@ -48,8 +52,11 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
           robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
           poseObservations.add(
               new PoseObservation(
-                  multitagResult.estimatedPose.ambiguity, robotPose, result.getTimestampSeconds()));
-        } else if (result.hasTargets()) {
+                  multitagResult.estimatedPose.ambiguity,
+                  robotPose,
+                  result.getTimestampSeconds(),
+                  distance));
+        } else {
           // Single Target
           var target = result.getBestTarget();
           var tagPose = VisionConstants.kTagLayout.getTagPose(target.fiducialId);
@@ -61,12 +68,18 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
             fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
             robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
             poseObservations.add(
-                new PoseObservation(target.poseAmbiguity, robotPose, result.getTimestampSeconds()));
+                new PoseObservation(
+                    target.poseAmbiguity, robotPose, result.getTimestampSeconds(), distance));
           }
         }
       }
 
       inputs.hasTarget = !poseObservations.isEmpty();
+
+      inputs.poseObservations = new PoseObservation[poseObservations.size()];
+      for (int i = 0; i < poseObservations.size(); i++) {
+        inputs.poseObservations[i] = poseObservations.get(i);
+      }
 
     } else {
       inputs.hasTarget = false;
